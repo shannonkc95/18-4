@@ -1,0 +1,215 @@
+\section{SALSA method} \label{sec:SALSA}
+In 2000, Ronny Lempel and Schlomo Moran developed an algorithm for ranking web pages called the Stochastic Approach to Link Systems Analysis, SALSA, which incorporates ideas from both HITS and PR. Lempel and Moran developed SALSA as an attempt to avoid certain problems with HITS, such as topic drift \cite{bonato}. The algorithm is similar to HITS as it produces both authority and hub scores for the web pages in the graph, but SALSA examines random walks on two Markov chains derived from the web, similar to PR as opposed to a graph which is formed from connectivity analysis as in HITS \cite{lempel2000stochastic}, and the constructed graphs in SALSA gives higher authority weights than in HITS \cite{bonato}. SALSA is a query-dependant algorithm like HITS, however is less vulnerable to the TKC effect which can negatively impact rankings in HITS.
+
+\subsection{SALSA Implementation}\label{sec:SALSA implementation}
+The SALSA algorithm first forms a neighbourhood graph N in a similar method to HITS, see Section \ref{sec:HITS implementation} for more details, next a bipartite undirected graph, G, is formed. G is defined by three sets, $V_h$, the set of hub nodes, $V_a$, the set of authority nodes, and \textit{E}, which is the set of directed edges in N. Using Figure \ref{fig:Example} as an example, we find 
+\[V_h = \{2,3,4,5,6,7,8\} \]
+\[V_a = \{1,2,3,4,5,7,8\} \]
+The bipartite graph for Figure \ref{fig:Example} is given in Figure \ref{fig:bipartite}, where the authority nodes are on the 'authority side' and similarly the hub nodes are on the 'hub side' of the graph. 
+
+\begin{figure}[h!]
+\centering
+\begin{tikzpicture}
+   \begin{scope}[rotate=90]
+       \SetVertexNoLabel
+       \grEmptyLadder[RA=2,RB=6]{8}   
+       \AssignVertexLabel{a}{8h,7h,6h,5h,4h,3h,2h,1h}
+       \AssignVertexLabel{b}{8a,7a,6a,5a,4a,3a,2a,1a}
+
+   \end{scope} 
+   \EdgeFromOneToSel{b}{a}{0}{1,3}
+   \EdgeFromOneToSel{b}{a}{2}{0,1,4}
+   \EdgeFromOneToSel{b}{a}{3}{0}
+   \EdgeFromOneToSel{b}{a}{4}{1,3} 
+   \EdgeFromOneToSel{b}{a}{5}{3}
+   \EdgeFromOneToSel{b}{a}{6}{5,3}
+   \EdgeFromOneToSel{b}{a}{7}{2,4,6} 
+\end{tikzpicture}\caption{Bipartite graph of Figure \ref{fig:Example} } \label{fig:bipartite}
+\end{figure}
+
+The next step in the algorithm relates to the formation of the two Markov chains used, the authority Markov chain which has a transition probability matrix \textbf{A}, and a hub Markov chain with the matrix \textbf{H}. In relation to the SALSA algorithm \textbf{H} is the hub matrix, which is not to be confused with the hyperlink matrix that \textbf{H} represents in PR, as shown in Section \ref{sec:hyperlink}.  
+
+{SALSA uses row and column weighting to calculate their authority and hub scores. Let $\textbf{L}_r$ be the adjacency matrix \textbf{L} with each non-zero row divided by the sum of the rows, and similarly $\textbf{L}_c$ is \textbf{L} where each non zero column is divided by the column sum.
+
+\begin{equation*}
+\textbf{L}=\left(
+\begin{array}{cccccccc}
+0 & 1 & 0 & 1 & 0 & 1 & 0 & 0 \\
+0 & 0 & 1 & 0 & 1 & 0 & 0 & 0 \\
+0 & 0 & 0 & 0 & 1 & 0 & 0 & 0 \\
+0 & 0 & 0 & 0 & 1 & 0 & 1 & 0 \\
+0 & 0 & 0 & 0 & 0 & 0 & 0 & 1 \\
+0 & 0 & 0 & 1 & 0 & 0 & 1 & 1 \\
+0 & 0 & 0 & 0 & 0 & 0 & 0 & 0 \\
+0 & 0 & 0 & 0 & 1 & 0 & 1 & 0 \\
+\end{array}
+\right)
+\end{equation*}
+
+\begin{equation*} \renewcommand*{\arraystretch}{1.25}
+\textbf{L}_r=\left(
+\begin{array}{cccccccc}
+0 & \frac{1}{3} & 0 & \frac{1}{3} & 0 & \frac{1}{3} & 0 & 0 \\
+0 & 0 & \frac{1}{2} & 0 & \frac{1}{3} & 0 & 0 & 0 \\
+0 & 0 & 0 & 0 & 1 & 0 & 0 & 0\\
+0 & 0 & 0 & 0 & \frac{1}{2} & 0 & \frac{1}{2} & 0 \\
+0 & 0 & 0 & 0 & 0 & 0 & 0 & 1 \\
+0 & 0 & 0 & \frac{1}{3} & 0 & 0 & \frac{1}{3} & \frac{1}{3} \\
+0 & 0 & 0 & 0 & 0 & 0 & 0 & 0 \\
+0 & 0 & 0 & 0 & \frac{1}{2} & 0 & \frac{1}{2} & 0 \\
+\end{array}
+\right)
+\mathrm{,}\qquad
+\textbf{L}_c=\left(
+\begin{array}{cccccccc} 
+0 & 1 & 0 & \frac{1}{2} & 0 & 1 & 0 & 0 \\
+0 & 0 & 1 & 0 & \frac{1}{4} & 0 & 0 & 0 \\
+0 & 0 & 0 & 0 & \frac{1}{4} & 0 & 0 & 0 \\
+0 & 0 & 0 & 0 & \frac{1}{4} & 0 & \frac{1}{3} & 0 \\
+0 & 0 & 0 & 0 & 0 & 0 & 0 & \frac{1}{2} \\
+0 & 0 & 0 & \frac{1}{2} & 0 & 0 & \frac{1}{3} & \frac{1}{2} \\
+0 & 0 & 0 & 0 & 0 & 0 & 0 & 0 \\
+0 & 0 & 0 & 0 & \frac{1}{4} & 0 & \frac{1}{3} & 0 \\
+\end{array}
+\right)
+\end{equation*}
+
+\textbf{H} is formed by removing the zero row and columns in $\textbf{L}_r\textbf{L}_c^T$, and similarly \textbf{A} is formed through removing the zero columns and rows in $\textbf{L}_c^T\textbf{L}_r$.
+
+\begin{equation*} \renewcommand*{\arraystretch}{1.25}
+\textbf{L}_r\textbf{L}_c^T=\left(
+\begin{array}{cccccccc}
+\frac{5}{6} & 0 & 0 & 0 & 0 & \frac{1}{6} & \textcolor{red}{0} & 0 \\
+0 & \frac{5}{8} & \frac{1}{8} & \frac{1}{8} & 0 & 0 & \textcolor{red}{0} & \frac{1}{8} \\
+0 & \frac{1}{4} & \frac{1}{4} & \frac{1}{4} & 0 & 0 & \textcolor{red}{0} & \frac{1}{4} \\
+0 & \frac{1}{8} & \frac{1}{8} & \frac{7}{24} & 0 & \frac{1}{6} & \textcolor{red}{0} & \frac{7}{24} \\
+0 & 0 & 0 & 0 & \frac{1}{2} & \frac{1}{2} & \textcolor{red}{0} & 0\\
+\frac{1}{6} & 0 & 0 & \frac{1}{9} & \frac{1}{6} & \frac{4}{9} & \textcolor{red}{0} & \frac{1}{9} \\
+\textcolor{red}{0} & \textcolor{red}{0} & \textcolor{red}{0} & \textcolor{red}{0} & \textcolor{red}{0} & \textcolor{red}{0} & \textcolor{red}{0} & \textcolor{red}{0} \\
+0 & \frac{1}{8} & \frac{1}{8} & \frac{7}{24} & 0 & \frac{1}{6} & \textcolor{red}{0} & \frac{7}{24} \\
+\end{array}
+\right)
+\mathrm{,}\qquad
+\textbf{L}_c^T\textbf{L}_r=\left(
+\begin{array}{cccccccc}
+\textcolor{red}{0} & \textcolor{red}{0} & \textcolor{red}{0} & \textcolor{red}{0} & \textcolor{red}{0} & \textcolor{red}{0} & \textcolor{red}{0} & \textcolor{red}{0} \\
+\textcolor{red}{0} & \frac{1}{3} & 0 & \frac{1}{3} & 0 & \frac{1}{3} & 0 & 0 \\
+\textcolor{red}{0} & 0 & \frac{1}{2} & 0 & \frac{1}{2} & 0 & 0 & 0 \\
+\textcolor{red}{0} & \frac{1}{6} & 0 & \frac{1}{3} & 0 & \frac{1}{6} & \frac{1}{6} & \frac{1}{6} \\
+\textcolor{red}{0} & 0 & \frac{1}{8} & 0 & \frac{5}{8} & 0 & \frac{1}{4} & 0 \\
+\textcolor{red}{0} & \frac{1}{3} & 0 & \frac{1}{3} & 0 & \frac{1}{3} & 0 & 0 \\
+\textcolor{red}{0} & 0 & 0 & \frac{1}{9} & \frac{1}{3} & 0 & \frac{4}{9} & \frac{1}{9} \\
+\textcolor{red}{0} & 0 & 0 & \frac{1}{6} & 0 & 0 & \frac{1}{6} & \frac{2}{3} \\
+\end{array}
+\right)
+\end{equation*}
+ Hence we are able to form the SALSA hub and authority matrices for the example;
+\begin{equation*} \renewcommand*{\arraystretch}{1.25}
+\textbf{H}=\left(
+\begin{array}{ccccccc}
+\frac{5}{6} & 0 & 0 & 0 & 0 & \frac{1}{6} & 0 \\
+0 & \frac{5}{8} & \frac{1}{8} & \frac{1}{8} & 0 & 0 & \frac{1}{8} \\
+0 & \frac{1}{4} & \frac{1}{4} & \frac{1}{4} & 0 & 0 & \frac{1}{4} \\
+0 & \frac{1}{8} & \frac{1}{8} & \frac{7}{24} & 0 & \frac{1}{6} & \frac{7}{24} \\
+0 & 0 & 0 & 0 & \frac{1}{2} & \frac{1}{2} & 0\\
+\frac{1}{6} & 0 & 0 & \frac{1}{9} & \frac{1}{6} & \frac{4}{9} & \frac{1}{9} \\
+0 & \frac{1}{8} & \frac{1}{8} & \frac{7}{24} & 0 & \frac{1}{6} & \frac{7}{24} \\
+\end{array}
+\right)
+\mathrm{,}\quad\mathrm{and}\quad
+\textbf{A}=\left(
+\begin{array}{ccccccc}
+\frac{1}{3} & 0 & \frac{1}{3} & 0 & \frac{1}{3} & 0 & 0 \\
+0 & \frac{1}{2} & 0 & \frac{1}{2} & 0 & 0 & 0 \\
+\frac{1}{6} & 0 & \frac{1}{3} & 0 & \frac{1}{6} & \frac{1}{6} & \frac{1}{6} \\
+0 & \frac{1}{8} & 0 & \frac{5}{8} & 0 & \frac{1}{4} & 0 \\
+\frac{1}{3} & 0 & \frac{1}{3} & 0 & \frac{1}{3} & 0 & 0 \\
+0 & 0 & \frac{1}{9} & \frac{1}{3} & 0 & \frac{4}{9} & \frac{1}{9} \\
+0 & 0 & \frac{1}{6} & 0 & 0 & \frac{1}{6} & \frac{2}{3} \\
+\end{array}
+\right)
+\end{equation*}
+
+Both the authority and the hub matrix are primitive, as the Markov chains for both are aperiodic \cite{lempel2000stochastic}. If G is connected, then \textbf{H} and \textbf{A} are both irreducible Markov chains, and we are able to find the stationary vector, $\boldsymbol\pi_h^T$, of \textbf{H} which gives the hub scores for N. Equivalently $\boldsymbol\pi_a^T$, the stationary vector of \textbf{A} gives the authority scores. By the ergodic theorem \cite{gallager1992discrete}, we can find the  the stationary distribution of the underlying Markov chain, as this is the principal eigenvector of an irreducible, aperiodic, stochastic matrix. The entries with the highest entries relate the the nodes that are most frequently visited by the (infinite) random walk. 
+
+In our example, G in Figure \ref{fig:bipartite} is not connected, as we are not able to reach nodes 7a and 1h though any of the other nodes. Due to this, our \textbf{H} and \textbf{A} matrices contain multiple connected graphs. \textbf{H} contains two connected sets, \textit{X} = \{7\}, and \textit{Y}=\{1,2,3,4,5,6,8\}, \textbf{A} also contains two sets, \textit{W}=\{1\} and \textit{Z}=\{2,3,4,5,6,7,8\}, we are able to compute the stationary values for these connected sets through the use of the power method, as discussed in Section \ref{sec:solve}.
+
+The stationary vectors, $\boldsymbol\pi_h^T$, for the two Markov chains which make up the Hub Markov chain is \textit{X} and \textit{Y} are 
+\[\boldsymbol\pi_h^T (X) = \begin{blockarray}{c}
+7 \\
+\begin{block}{(c)}
+ 1 \\
+\end{block}
+\end{blockarray} \mathrm{,}\quad\mathrm{and}\quad
+\boldsymbol\pi_h^T (Y) =
+\begin{blockarray}{ccccccc}
+1 & 2 & 3 & 4 & 5 & 6 & 8 \\
+\begin{block}{(ccccccc)}
+ 0.214 & 0.143 & 0.071 & 0.143 & 0.071 & 0.214 & 0.143 \\
+\end{block}
+\end{blockarray} \] correspondingly the stationary values for the two components in \textbf{A} are
+\[\boldsymbol\pi_a^T (W) = \begin{blockarray}{c}
+1 \\
+\begin{block}{(c)}
+ 1 \\
+\end{block}
+\end{blockarray} \mathrm{,}\quad\mathrm{and}\quad
+\boldsymbol\pi_a^T (Z) = \begin{blockarray}{ccccccc}
+2 & 3 & 4 & 5 & 6 & 7 & 8 \\
+\begin{block}{(ccccccc)}
+0.071 & 0.071 & 0.143 & 0.286 & 0.071 & 0.214 & 0.143 \\
+\end{block}
+\end{blockarray}\]
+From these components we are able to calculate the local Hub and Authority rankings:
+\[\boldsymbol\pi_h^T (X) = \begin{blockarray}{c}
+7 \\
+\begin{block}{(c)}
+ 1 \\
+\end{block}
+\end{blockarray} \mathrm{,}\quad\mathrm{and}\quad
+\boldsymbol\pi_h^T (Y) =
+\begin{blockarray}{ccccccc}
+1 & 2 & 3 & 4 & 5 & 6 & 8 \\
+\begin{block}{(ccccccc)}
+1 & 3 & 6 & 3 & 6 & 1 & 3 \\
+\end{block}
+\end{blockarray} \]
+\[\boldsymbol\pi_h^T (W) = \begin{blockarray}{c}
+1 \\
+\begin{block}{(c)}
+ 1 \\
+\end{block}
+\end{blockarray} \mathrm{,}\quad\mathrm{and}\quad
+\boldsymbol\pi_h^T (Z) = \begin{blockarray}{ccccccc}
+2 & 3 & 4 & 5 & 6 & 7 & 8 \\
+\begin{block}{(ccccccc)}
+5 & 5 & 3 & 1 & 5 & 2 & 3  \\
+\end{block}
+\end{blockarray} \]
+
+We are now able to calculate the global Hub and Authority scores, this is done by weighting the local scores by the proportion of G that they contain, for example \textit{X} contains $\frac{1}{8}$ of the nodes in the hub set, and so SALSA proposes that the $\boldsymbol\pi_h^T(X)$ vector should be weighted by $\frac{1}{8}$. This leads to the global scores;
+\begin{eqnarray*}
+\pi_h = \left( \begin{array} {cccccccc}
+0.188 & 0.125 & 0.063 & 0.125 & 0.063 & 0.188 & 0.125 & 0.125
+\end{array}\right) \\
+\pi_a = \left( \begin{array} {cccccccc}
+0.125 & 0.063 & 0.063 & 0.125 & 0.250 & 0.063 & 0.188 & 0.125
+\end{array}\right)
+\end{eqnarray*} as shown in Table \ref{Table:SALSA}
+
+\begin{table}[H] \caption{SALSA Authority and Hub rankings}
+ \centering
+ \begin{tabular} {c| c c} 
+ Node & Authority & Hub \\ [0.5ex] 
+ \hline
+ 1&3&1\\
+ 2&6&3\\
+ 3&6&7\\
+ 4&3&3\\
+ 5&1&7\\
+ 6&6&1\\
+ 7&2&3\\
+ 8&2&3\\
+ \end{tabular}
+ \label{Table:SALSA}
+\end{table}

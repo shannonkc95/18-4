@@ -1,0 +1,12 @@
+\section{Personalization Vector} \label{sec:Personalization}
+We are able to form a personalised PR which 'can create a view of Web from a particular perspective' \cite{page1999pagerank}. We can do this by using $\textbf{ev}^T$ in the general PR algorithm instead of $\frac{1}{n}\cdot1^T$, and so the Google matrix in Equation \eqref{eq:G} is now given as \begin{equation}\label{eq:Personalisation G}
+\textbf{G}=\alpha\textbf{S}+\left((1-\alpha)\cdot\textbf{ev}^T\right)
+\end{equation} and so we are able to state the PR equation Equation \eqref{eq:power to G} as; 
+\begin{align}
+\boldsymbol{\pi}^{(k+1)T} &= \boldsymbol{\pi}^{(k)T}\textbf{G} \nonumber \\
+&= \alpha\boldsymbol{\pi}^{(k)T}\textbf{S} + (1-\alpha)\boldsymbol{\pi}^{(k)T}\textbf{ev}^T \nonumber \\
+&= \alpha\boldsymbol{\pi}^{(k)T}\textbf{H} + \left(\alpha\boldsymbol{\pi}^{(k)T}\textbf{a} + 1 - \alpha\right)\textbf{v}^T \label{eq:Power personalization}
+\end{align}
+When we use this personalization vector, the probabilities are no longer uniformly distributed \cite{langville}. This personalization vector is an arbitrary stochastic vector \cite{bonato}. The use of the personalization vector retains the advantage of being able to use the power method in order to compute the rankings, along with maintaining the other advantages of PR such as the minimal storage required in order to generate the rankings.
+
+Personalized PR changes only the PR vector itself, as different personalizations produce different rankings \cite{thorson2004modeling}. The personalization vector can be used to control spamming by link farms, as PR is vulnerable to this spamdexing as discussed in Section \ref{sec:compare}, \cite{thorson2004modeling}. However personalized PR is costly in implementation as it is very difficult to form the personalization vector, and so in order to combat this we use pseudo-personalization PR systems, such as Topic-Specific PageRank.

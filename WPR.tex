@@ -1,0 +1,91 @@
+\section{Weighted PageRank}\label{sec:weighted}
+Weighted PageRank algorithm differs from the standard algorithm by assigning more value to important pages rather than diving the rank equally, as each outlink page receives a value which is proportional to its popularity \cite{xing2004weighted}. $W^{in}_{(j,i)}$ is the weight of the link between pages \textit{i} and \textit{j}, which is calculated as 
+\begin{equation}\label{eq:weightin}
+W^{in}_{(j,i)} = \frac{I_i}{\sum_{k\in R(i)}I_k}
+\end{equation}
+where $I_i$ and $I_k$ represent the number of inlinks of pages \textit{i} and \textit{j} respectively, and $R(j)$ is the set of pages that \textit{j} links into. 
+Similarly $W^{out}_{(j,i)}$ is calculated as
+\begin{equation}\label{eq:weightout}
+W^{out}_{(j,i)} = \frac{O_i}{\sum_{k\in R(i)}O_k}
+\end{equation}
+
+In the example Figure \ref{fig:Example}, Page 2 has 2 outlinks, 3 and 5. The inlinks and outlinks of these pages are, $I_3 = 1$, $I_5 = 4$, $O_3 = 1$ and $O_5 = 1$, and so we can calculate 
+\[W^{in}_{(2,3)} = \frac{I_3}{I_3 + I_5} = \frac{1}{5} \]
+and 
+\[W^{out}_{(2,3)} = \frac{O_3}{O_3 + O_5} = \frac{1}{2} \] 
+
+The original PageRank formula given in Equation \eqref{eq:power H}, is now modified to 
+\begin{equation} \label{eq:WPR formula}
+\boldsymbol\pi^{(k+1)T} = \boldsymbol\pi^{(k)T}\textbf{H}
+\end{equation}
+When Equation \eqref{eq:weightin} and Equation \eqref{eq:weightout} applied to Figure \ref{fig:Example}, we produce a hyperlink matrix which is different to \textbf{H} produced in section \ref{sec:hyperlink}. 
+
+\[\textbf{W}_{out}=\left(
+\begin{array}{cccccccc}
+0 & \frac{2}{7} & 0 & \frac{2}{7} & 0 &\frac{3}{7} & 0 & 0 \\
+0 & 0 &\frac{1}{2}& 0 &\frac{1}{2}& 0 & 0 & 0\\
+0 & 0 & 0 & 0 & 1 & 0 & 0 & 0\\
+0 & 0 & 0 & 0 & 1 & 0 & 0 & 0\\
+0 & 0 & 0 & 0 & 0 & 0 & 0 & 1\\
+0 & 0 & 0 & \frac{1}{2} & 0 & 0 & 0 & \frac{1}{2} \\
+0 & 0 & 0 & 0 & 0 & 0 & 0 & 0\\
+0 & 0 & 0 & 0 & 1 & 0 & 0 & 0\\
+\end{array}
+\right) \mathrm{,}\quad\mathrm{and}\quad\textbf{W}_{in}=\left(
+\begin{array}{cccccccc}
+0 & 0 & 0 & 0 & 0 & 0 & 0 & 0 \\
+0 & 0 & 0 & 0 & 0 & 0 & 0 & 0\\
+0 & 1 & 0 & 0 & 0 & 0 & 0 & 0\\
+0 & 0 & 0 & 0 & 0 & 1 & 0 & 0\\
+0 & \frac{1}{6} & \frac{1}{6} & \frac{1}{3} & 0 & 0 & 0 & \frac{1}{3}\\
+0 & 0 & 0 & 0 & 0 & 0 & 0 & 0 \\
+0 & 0 & 0 & \frac{2}{5} & 0 & \frac{1}{5} & 0 & \frac{2}{5}\\
+0 & 0 & 0 & 0 & \frac{4}{5} & \frac{1}{5} & 0 & 0\\
+\end{array}
+\right)	\]
+\[\textbf{H}_{WPR}=\left(
+\begin{array}{cccccccc}
+0 & 0 & 0 & 0 & 0 & 0 & 0 & 0 \\
+0 & 0 & 0 & 0 & 0 & 0 & 0 & 0\\
+0 & 0 & \frac{1}{2} & 0 & \frac{1}{2} & 0 & 0 & 0\\
+0 & 0 & 0 & \frac{1}{2} & 0 & 0 & 0 & \frac{1}{2}\\
+0 & 0 & \frac{1}{12} & 0 & \frac{11}{12} & 0 & 0 & 0\\
+0 & 0 & 0 & 0 & 0 & 0 & 0 & 0 \\
+0 & 0 & 0 & \frac{1}{10} & \frac{8}{10} & 0 & 0 & \frac{1}{10}\\
+0 & 0 & 0 & \frac{1}{10} & 0 & 0 & 0 & \frac{9}{10}\\
+\end{array}
+\right)	\]
+
+Through the same methods as discussed in chapters 2 and 3, we produce a PageRank vector 
+\[\boldsymbol\pi_{WPR} = \left(
+\begin{array}{c}
+0.028 \\
+0.028 \\
+0.097 \\
+0.097 \\
+0.395 \\
+0.028 \\
+0.028 \\
+0.302
+\end{array}
+\right)\]
+when we compare the PageRankings produced by performing the standard algorithm and the weighted algorithm:
+\begin{table}[H] \caption{Comparison of PageRankings produced by standard algorithm and the weighted PageRank algorithm}
+ \centering
+ \begin{tabular} {c| c c} 
+ Node & PR & WPR \\ [0.5ex] 
+ \hline
+ 1&8&5\\
+ 2&6&5\\
+ 3&5&3\\
+ 4&4&3\\
+ 5&2&1\\
+ 6&6&5\\
+ 7&3&5\\
+ 8&1&2\\
+ \end{tabular}
+ \label{Table:WPR and PR}
+\end{table}
+\cite{langville}, \cite{baeza2004web}
+
+The WPR algorithm has been shown as being able to identify a greater number of relevant pages when compared to the standard PR algorithm \cite{xing2004weighted}. We will also use the WPR algorithm later in this report in section \ref{sec:Roads}, in order to predict the human movement in an urban space. 

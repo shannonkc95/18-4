@@ -1,0 +1,23 @@
+In order to mathematically represent the PageRank algorithm, Brin and Page first assigned each page, $P_i$, a rank
+\begin{equation}
+r(P_i) = \displaystyle \sum_{P_j\in B_{P_i }} \frac{r(P_j)}{|P_j|}
+\end{equation} where $B_{P_i}$ is the set of pages pointing into $P_i$, and $\vert P_j\vert$ is the number of outlinks from a page. However the ranking of outlinks is unknown, and so an iterative summation formula is required, where it is assumed that all pages have equal PageRank at the start, \(r_o = \frac{1}{n}\) , \begin{equation} \label{eq:iterative}
+r_{(k+1)}P_i = \displaystyle \sum_{P_j\in B_{P_i }}\frac{r_k(P_j)}{|P_j|}
+\end{equation} 
+When Equation \eqref{eq:iterative} is applied to all pages in the graph, you can calculate a ranking for the pages, so for the graph in Figure \ref{fig:Example}, we get the following values for the PageRanks after some iterations: 
+
+\begin{table}[H] \caption{First iterates using Equation \eqref{eq:iterative} on Figure \ref{fig:Example}}
+ \centering
+ \begin{tabular} {c c c |c} 
+ Iter. 0 & Iter. 1 & Iter. 2 &  Rank at Iter. 2 \\ [0.5ex] 
+ \hline
+ $r_0(P_1)=\frac{1}{8}$ & $r_1(P_1)=0$ & $r_2(P_1)=0$ & $6$ \\ 
+ $r_0(P_2)=\frac{1}{8}$ & $r_1(P_2)=\frac{1}{24}$ & $r_2(P_2)=0$ & $6$ \\ 
+ $r_0(P_3)=\frac{1}{8}$ & $r_1(P_3)=\frac{1}{16}$ & $r_2(P_3)=\frac{1}{48}$ & $4$ \\ 
+ $r_0(P_4)=\frac{1}{8}$ & $r_1(P_4)=\frac{5}{48}$ & $r_2(P_4)=\frac{1}{48}$ & $4$ \\ 
+ $r_0(P_5)=\frac{1}{8}$ & $r_1(P_5)=\frac{5}{16}$ & $r_2(P_5)=\frac{11}{48}$ & $2$ \\ 
+ $r_0(P_6)=\frac{1}{8}$ & $r_1(P_6)=\frac{1}{24}$ & $r_2(P_6)=0$ & $6$ \\ 
+ $r_0(P_7)=\frac{1}{8}$ & $r_1(P_7)=\frac{3}{16}$ & $r_2(P_7)=\frac{1}{6}$ & $3$ \\ 
+ $r_0(P_8)=\frac{1}{8}$ & $r_1(P_8)=\frac{3}{16}$ & $r_2(P_8)=\frac{1}{3}$ & $1$ \\ \end{tabular}
+\label{Table:Summ}
+\end{table}
