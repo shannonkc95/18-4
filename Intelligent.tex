@@ -1,6 +1,0 @@
-\section{Intelligent Surfer} \label{sec:intelligent}
-PageRank as an algorithm ranks a page highly if it is at the centre of a hyper graph, however the highest ranked pages should also be relevant to the query. We can solve this by the PageRank algorithm by the use of an intelligent surfer as opposed to a random surfer. The intelligent surfer will be more likely to jump to a more content-filled page, and so these pages should be assigned a greater weight \cite{langville}. In practice, the hyperlink matrix could be formed from using access logs in order to find the tendencies of the surfer. 
-
-The use of an intelligent surfer outperforms the standard PageRank algorithm in terms of the quality of the pages, whilst still being efficient enough in terms of being a practical search engine \cite{richardson2002intelligent}. 
-
-This algorithm can be viewed as a solution to topic drift, as discussed in Section \ref{sec:HITS}, as only relevant topics will be  given. In order to ensure that the algorithm is efficient, the majority of the computation is performed at crawl time, rather than at query time \cite{richardson2002intelligent}. 
